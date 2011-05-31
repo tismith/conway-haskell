@@ -13,14 +13,13 @@ nextGeneration :: [Cell] -> [Cell]
 nextGeneration cs = nub $ concat $ map (newAlive cs) cs
 
 newAlive :: [Cell] -> Cell -> [Cell]
-newAlive cs c = filter (isAlive cs) $ c:(neighBours c)
+newAlive cs c = filter (isAlive cs) $ eightConnected c
 
-neighBours :: Cell -> [Cell]
-neighBours (x,y) 
-    = [ (ax, ay) | 
+eightConnected :: Cell -> [Cell]
+eightConnected (x,y) 
+    = [(ax, ay) | 
         ax <- [x-1, x, x+1], 
-        ay <- [y-1, y, y+1], 
-        ax /= x || ay /= y ]
+        ay <- [y-1, y, y+1]]
 
 -- takes a gameboard and cell, and returns if it's alive next gen 
 -- or not
@@ -38,4 +37,4 @@ isAlive cs c
 -- returns a list of the neighbours that are currently alive
 liveNeighbours :: [Cell] -> Cell -> [Cell]
 liveNeighbours cs c
-    = intersect cs $ c:(neighBours c)
+    = intersect cs $ eightConnected c
