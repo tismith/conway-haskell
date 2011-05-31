@@ -1,6 +1,6 @@
 module Conway where
 
-import Data.List (nub, intersect)
+import Data.List (nub, intersect, (\\))
 
 type Cell = (Int, Int)
 
@@ -13,13 +13,14 @@ nextGeneration :: [Cell] -> [Cell]
 nextGeneration cs = nub $ concat $ map (newAlive cs) cs
 
 newAlive :: [Cell] -> Cell -> [Cell]
-newAlive cs c = filter (isAlive cs) $ eightConnected c
+newAlive cs c = filter (isAlive cs) $ c:(neighBours c)
 
-eightConnected :: Cell -> [Cell]
-eightConnected (x,y) 
+neighBours :: Cell -> [Cell]
+neighBours (x,y) 
     = [(ax, ay) | 
         ax <- [x-1, x, x+1], 
-        ay <- [y-1, y, y+1]]
+        ay <- [y-1, y, y+1],
+        ax /= x || ay /= y]
 
 -- takes a gameboard and cell, and returns if it's alive next gen 
 -- or not
@@ -37,4 +38,4 @@ isAlive cs c
 -- returns a list of the neighbours that are currently alive
 liveNeighbours :: [Cell] -> Cell -> [Cell]
 liveNeighbours cs c
-    = intersect cs $ eightConnected c
+    = intersect cs $ neighBours c
