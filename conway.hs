@@ -1,37 +1,41 @@
 module Conway where
 
-type Cells = [(Int, Int)]
+import Data.List (nub, intersect)
+
+type Cell = (Int, Int)
 
 --basic glider
-startingCells :: Cells
-startingCells = [(1,0), (2,1), (2,0), (2,1), (2,2)]
+startingCells :: [Cell]
+startingCells = [(1,0), (2,1), (0,2), (1,2), (2,2)]
 
 -- add cells who have 3 alive neighbours
-newAlive :: Cells -> Cells
-newAlive = undefined
+nextGeneration :: [Cell] -> [Cell]
+nextGeneration cs = nub $ concat $ map (newAlive cs) cs
 
--- filter out dead cells who have < 2 or > 3 alive neighbours
-filterAlive :: Cells -> Cells
-filterAlive cs = filter (isAlive cs) cs
+newAlive :: [Cell] -> Cell -> [Cell]
+newAlive cs c = filter (isAlive cs) $ c:(neighBours c)
 
--- takes an gameboard and a live cell, and returns if it's alive next gen 
+neighBours :: Cell -> [Cell]
+neighBours (x,y) 
+    = [ (ax, ay) | 
+        ax <- [x-1, x, x+1], 
+        ay <- [y-1, y, y+1], 
+        ax /= x || ay /= y ]
+
+-- takes a gameboard and cell, and returns if it's alive next gen 
 -- or not
-isAlive :: Cells -> (Int, Int) -> Bool
+isAlive :: [Cell] -> Cell -> Bool
 isAlive cs c 
     | aliveCount < 2 = False
-    | aliveCount == 2 = True
+    | aliveCount == 2 = (c `elem` cs)
     | aliveCount == 3 = True
     | aliveCount > 3 = False
     | otherwise = False
     where
         aliveCount = length $ liveNeighbours cs c
 
-liveNeighbours cells (x, y) 
-    = [ (ax, ay) | 
-        (ax, ay) <- cells, 
-        ax == x || ax == x + 1 || ax == x - 1, 
-        ay == y || ay == ay + 1 || ay == ay - 1, 
-        ax /= x && ay /= y ]
-    
-nextGeneration :: Cells -> Cells
-nextGeneration c = (newAlive c) ++ (filterAlive c)
+-- takes a list of live cells, and a coord, and 
+-- returns a list of the neighbours that are currently alive
+liveNeighbours :: [Cell] -> Cell -> [Cell]
+liveNeighbours cs c
+    = intersect cs $ c:(neighBours c)
