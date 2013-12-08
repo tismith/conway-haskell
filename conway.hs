@@ -7,7 +7,8 @@ type Cell = (Int, Int)
 
 --basic glider
 startingCells :: [Cell]
-startingCells = [(1,0), (2,1), (0,2), (1,2), (2,2)]
+startingCells = [(1,0), (2,1), (0,2), (1,2), (2,2), --glider
+	(5,5),(5,4),(5,6)]
 
 -- add cells who have 3 alive neighbours
 nextGeneration :: [Cell] -> [Cell]
