@@ -28,6 +28,7 @@ test-suite conway-haskell-testsuite
   type:			exitcode-stdio-1.0
   main-is:		Test.hs
   build-depends:	base, QuickCheck
-  default-language:    Haskell2010
+  default-language:     Haskell2010
+  ghc-options:		-fhpc -hpcdir dist/
 
 
