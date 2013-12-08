@@ -1,7 +1,7 @@
-module Main where
-
+module Conway where
 import Data.List (nub, intersect)
 import Control.Monad (forM_)
+import Test.QuickCheck
 
 type Cell = (Int, Int)
 
@@ -10,13 +10,16 @@ startingCells :: [Cell]
 startingCells = [(1,0), (2,1), (0,2), (1,2), (2,2), --glider
 	(5,5),(5,4),(5,6)]
 
--- add cells who have 3 alive neighbours
+-- add cells who have 3 alive neighBours
+prop_nextGeneration_empty cs =
+	(null cs) ==>  null (nextGeneration cs)
 nextGeneration :: [Cell] -> [Cell]
 nextGeneration cs = nub $ concat $ map (newAlive cs) cs
 
 newAlive :: [Cell] -> Cell -> [Cell]
 newAlive cs c = filter (isAlive cs) $ c:(neighBours c)
 
+prop_neighBours_length c = length (neighBours c) == 8
 neighBours :: Cell -> [Cell]
 neighBours (x,y) 
     = [(ax, ay) | 
@@ -26,6 +29,8 @@ neighBours (x,y)
 
 -- takes a gameboard and cell, and returns if it's alive next gen 
 -- or not
+prop_isAlive_empty cs c  =
+	(null cs) ==>  (isAlive cs c) == False
 isAlive :: [Cell] -> Cell -> Bool
 isAlive cs c 
     | aliveCount < 2 = False
@@ -68,6 +73,5 @@ runLife n cells = do
 	printCells cells
 	runLife (succ n) $ nextGeneration cells
 
-main :: IO ()
-main = runLife 0 startingCells
+
 	
