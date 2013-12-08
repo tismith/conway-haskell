@@ -1,6 +1,7 @@
-module Conway where
+module Main where
 
-import Data.List (nub, intersect, (\\))
+import Data.List (nub, intersect)
+import Control.Monad (forM_)
 
 type Cell = (Int, Int)
 
@@ -39,3 +40,33 @@ isAlive cs c
 liveNeighbours :: [Cell] -> Cell -> [Cell]
 liveNeighbours cs c
     = intersect cs $ neighBours c
+
+maxY :: [Cell] -> Int
+maxX :: [Cell] -> Int
+minY :: [Cell] -> Int
+minX :: [Cell] -> Int
+maxY = maximum . (map (snd))
+maxX = maximum . (map (fst))
+minY = minimum . (map (snd))
+minX = minimum . (map (fst))
+
+printCells :: [Cell] -> IO ()
+printCells cells =  
+	forM_ [(minY cells) .. (maxY cells)] (\y -> 
+		forM_ [(minX cells) .. (maxX cells)] (\x -> 
+			if ((x,y) `elem` cells) then 
+				putStr "X" 
+			else 
+				putStr ".")
+		>> putStrLn "")
+
+runLife :: (Show n, Enum n) => n -> [Cell] -> IO ()
+runLife n cells = do
+	putStrLn ("generation " ++ show n)
+	getLine
+	printCells cells
+	runLife (succ n) $ nextGeneration cells
+
+main :: IO ()
+main = runLife 0 startingCells
+	
