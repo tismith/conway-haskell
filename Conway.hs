@@ -10,10 +10,10 @@ startingCells = [(1,0), (2,1), (0,2), (1,2), (2,2), --glider
 	(5,5),(5,4),(5,6)]
 
 nextGeneration :: [Cell] -> [Cell]
-nextGeneration cs = nub $ concat $ map (newAlive cs) cs
+nextGeneration cs = nub $ concatMap (newAlive cs) cs
 
 newAlive :: [Cell] -> Cell -> [Cell]
-newAlive cs c = filter (isAlive cs) $ c:(neighBours c)
+newAlive cs c = filter (isAlive cs) $ c:neighBours c
 
 neighBours :: Cell -> [Cell]
 neighBours (x,y) 
@@ -27,7 +27,7 @@ neighBours (x,y)
 isAlive :: [Cell] -> Cell -> Bool
 isAlive cs c 
     | aliveCount < 2 = False
-    | aliveCount == 2 = (c `elem` cs)
+    | aliveCount == 2 = c `elem` cs
     | aliveCount == 3 = True
     | aliveCount > 3 = False
     | otherwise = False
@@ -44,21 +44,19 @@ maxY :: [Cell] -> Int
 maxX :: [Cell] -> Int
 minY :: [Cell] -> Int
 minX :: [Cell] -> Int
-maxY = maximum . (map (snd))
-maxX = maximum . (map (fst))
-minY = minimum . (map (snd))
-minX = minimum . (map (fst))
+maxY = maximum . map snd
+maxX = maximum . map fst
+minY = minimum . map snd
+minX = minimum . map fst
 
 printCells :: [Cell] -> IO ()
 printCells [] = return ()
 printCells cells =  
 	forM_ [(minY cells) .. (maxY cells)] (\y -> 
-		forM_ [(minX cells) .. (maxX cells)] (\x -> 
-			if ((x,y) `elem` cells) then 
-				putStr "X" 
-			else 
-				putStr ".")
-		>> putStrLn "")
+            forM_ [(minX cells) .. (maxX cells)] (\x -> 
+                putStr (if (x,y) `elem` cells then 
+                            "X" else "."))
+            >> putStrLn "")
 
 runLife :: (Show n, Enum n) => n -> [Cell] -> IO ()
 runLife n cells = do
