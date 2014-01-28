@@ -1,5 +1,5 @@
-module Main (main) where
 
+module Main (main) where
 import Test.Framework
 import Test.QuickCheck
 import Test.HUnit
@@ -9,29 +9,43 @@ import Test.Framework.Providers.HUnit
 import Data.List (nub)
 import Conway
 
+{-# ANN module "HLint: ignore Use camelCase" #-}
+
 main = defaultMain tests
 
+----------------------------------------------------
+-- QuickCheck tests
+---------------------------------------------------- 
+
 prop_nextGeneration_empty cs =
-	(null cs) ==>  null (nextGeneration cs)
+	null cs ==> null (nextGeneration cs)
 
 prop_neighBours_length c = length (neighBours c) == 8
-prop_neighBours_bounds_maxx c = maxX (neighBours c) == (fst c) + 1
-prop_neighBours_bounds_minx c = minX (neighBours c) == (fst c) - 1
-prop_neighBours_bounds_maxy c = maxY (neighBours c) == (snd c) + 1
-prop_neighBours_bounds_miny c = minY (neighBours c) == (snd c) - 1
+prop_neighBours_bounds_maxx c = maxX (neighBours c) == fst c + 1
+prop_neighBours_bounds_minx c = minX (neighBours c) == fst c - 1
+prop_neighBours_bounds_maxy c = maxY (neighBours c) == snd c + 1
+prop_neighBours_bounds_miny c = minY (neighBours c) == snd c - 1
 prop_neighBours_unique c = 
 	length (nub (neighBours c)) == length (neighBours c)
 
 prop_isAlive_empty cs c  =
-	(null cs) ==>  (isAlive cs c) == False
+	not $ null cs ==> isAlive cs c
 
-prop_max_min_X cs = (not (null cs)) ==> (maxX cs) >= (minX cs)
-prop_max_min_Y cs = (not (null cs)) ==> (maxY cs) >= (minY cs)
+prop_max_min_X cs = not (null cs) ==> maxX cs >= minX cs
+prop_max_min_Y cs = not (null cs) ==> maxY cs >= minY cs
+
+----------------------------------------------------
+-- HUnit tests
+---------------------------------------------------- 
 
 horizontalBar = [(0,1), (1,1), (2,1)]
 verticalBar = [(1,0), (1,1), (1,2)]
-test_nextGeneration_hbar = (nextGeneration horizontalBar) @?= verticalBar 
-test_nextGeneration_vbar = (nextGeneration verticalBar) @?= horizontalBar 
+test_nextGeneration_hbar = nextGeneration horizontalBar @?= verticalBar 
+test_nextGeneration_vbar = nextGeneration verticalBar @?= horizontalBar 
+
+----------------------------------------------------
+-- Test runner
+---------------------------------------------------- 
 
 tests = 
 	[

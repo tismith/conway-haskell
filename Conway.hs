@@ -61,9 +61,7 @@ printCells cells =
 runLife :: (Show n, Enum n) => n -> [Cell] -> IO ()
 runLife n cells = do
 	putStrLn ("generation " ++ show n)
-	getLine
+	_ <- getLine
 	printCells cells
 	runLife (succ n) $ nextGeneration cells
 
-
-	
