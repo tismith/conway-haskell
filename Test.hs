@@ -28,8 +28,7 @@ prop_neighBours_bounds_miny c = minY (neighBours c) == snd c - 1
 prop_neighBours_unique c = 
 	length (nub (neighBours c)) == length (neighBours c)
 
-prop_isAlive_empty cs c  =
-	not $ null cs ==> isAlive cs c
+prop_isAlive_empty cs c = null cs ==> not $ isAlive cs c
 
 prop_max_min_X cs = not (null cs) ==> maxX cs >= minX cs
 prop_max_min_Y cs = not (null cs) ==> maxY cs >= minY cs
