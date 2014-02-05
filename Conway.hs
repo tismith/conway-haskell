@@ -1,19 +1,26 @@
 module Conway where
 import Data.List (nub, intersect)
+import Control.Monad.Trans.State (State(..), runState, get, put)
 import Control.Monad (forM_)
 
 type Cell = (Int, Int)
+type Board = State [Cell]
 
 --basic glider
 startingCells :: [Cell]
 startingCells = [(1,0), (2,1), (0,2), (1,2), (2,2), --glider
 	(5,5),(5,4),(5,6)]
 
-nextGeneration :: [Cell] -> [Cell]
-nextGeneration cs = nub $ concatMap (newAlive cs) cs
+nextGeneration :: Board ()
+nextGeneration = do 
+        cs <- get
+        f <- newAlive
+        put $ nub $ concatMap f cs
 
-newAlive :: [Cell] -> Cell -> [Cell]
-newAlive cs c = filter (isAlive cs) $ c:neighBours c
+newAlive :: Board (Cell -> [Cell])
+newAlive = do 
+    f <- isAlive
+    return $ \c -> filter f $ c:neighBours c
 
 neighBours :: Cell -> [Cell]
 neighBours (x,y) 
@@ -22,23 +29,25 @@ neighBours (x,y)
         ay <- [y-1, y, y+1],
         ax /= x || ay /= y]
 
--- takes a gameboard and cell, and returns if it's alive next gen 
--- or not
-isAlive :: [Cell] -> Cell -> Bool
-isAlive cs c 
-    | aliveCount < 2 = False
-    | aliveCount == 2 = c `elem` cs
-    | aliveCount == 3 = True
-    | aliveCount > 3 = False
-    | otherwise = False
-    where
-        aliveCount = length $ liveNeighbours cs c
+-- Returns a function to see if the give cell is alive next gen
+isAlive :: Board (Cell -> Bool)
+isAlive = do
+        cs <- get
+        f <- liveNeighbours
+        return $ \c ->  
+            let aliveCount = length $ f c in
+            if aliveCount < 2 then False
+            else if aliveCount == 2 then c `elem` cs
+            else if aliveCount == 3 then True 
+            else if aliveCount > 3 then False
+            else False
 
 -- takes a list of live cells, and a coord, and 
 -- returns a list of the neighbours that are currently alive
-liveNeighbours :: [Cell] -> Cell -> [Cell]
-liveNeighbours cs c
-    = intersect cs $ neighBours c
+liveNeighbours :: Board (Cell -> [Cell])
+liveNeighbours = do
+        cs <- get
+        return $ \c -> intersect cs $ neighBours c
 
 maxY :: [Cell] -> Int
 maxX :: [Cell] -> Int
@@ -63,7 +72,7 @@ runLife n cells = do
 	putStrLn ("generation " ++ show n)
 	getLine
 	printCells cells
-	runLife (succ n) $ nextGeneration cells
+	runLife (succ n) $ snd $ runState nextGeneration cells
 
 
 	
